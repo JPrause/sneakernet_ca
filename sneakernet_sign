@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# used on central server to sign certificates
+# this is useful for Proof of Concepts when a real CA is not available
+
+# certificate for primary ca
+# not using extension crt to make it is easier to clean up processed csr / crt requests
+CA_CERT="primary_ca_root_file"
+
+# just use certmonger's local signer to sign the files
+# all certificates will be signed with same root ca's key ( unlike self sign)
+CM_COMMAND="/usr/libexec/certmonger/local-submit -d /var/lib/certmonger/local"
+ALL_BUT_FIRST_LINE="/usr/sed 1d"
+
+# copy_ca
+if [[ ! -f ${CA_CERT} ]] ; then
+  echo "copying ca certificate ${CA_CERT}"
+  CERTMONGER_OPERATION="FETCH-ROOTS" ${CM_COMMAND} | ${ALL_BUT_FIRST_LINE} > ${CA_CERT} 
+  [[ ! -s "${CA_CERT}" ]] && rm "${CA_CERT}"
+fi
+
+# sign_requests
+for csr_file in *.csr ; do
+  crt_file="${csr_file%.csr}.crt"
+  if [[ ! -f ${crt_file} ]] ; then
+    echo "signing ${crt_file}"
+    CERTMONGER_OPERATION="SUBMIT" ${CM_COMMAND} "${csr_file}" > "${crt_file}"
+  fi
+done
