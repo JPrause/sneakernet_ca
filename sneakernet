@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# this wrapper ensures either standard ruby or scl ruby is available
+# needed since this is called from init
+
+`which ruby > /dev/null 2>&1` || [ -s /opt/rh/ruby193/enable ] && source /opt/rh/ruby193/enable
+
+cd $(dirname $0)
+ruby $(basename $0).rb
