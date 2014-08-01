@@ -10,7 +10,7 @@ CA_CERT="primary_ca_root_file"
 # just use certmonger's local signer to sign the files
 # all certificates will be signed with same root ca's key ( unlike self sign)
 CM_COMMAND="/usr/libexec/certmonger/local-submit -d /var/lib/certmonger/local"
-ALL_BUT_FIRST_LINE="/usr/sed 1d"
+ALL_BUT_FIRST_LINE="/bin/sed 1d"
 
 # copy_ca
 if [[ ! -f ${CA_CERT} ]] ; then
